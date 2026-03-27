@@ -1,6 +1,6 @@
 package com.example.aula1;
 
-public class Usuario {
+public class UsuarioModel {
     
     private long id;
     private String nome;

@@ -3,13 +3,16 @@ package com.example.aula1.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.aula1.Usuario;
+import com.example.aula1.UsuarioModel;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 
@@ -17,11 +20,11 @@ import com.example.aula1.Usuario;
 @RestController
 public class UsuarioController {
 
-    private List<Usuario> usuarios = new ArrayList<>();
+    private List<UsuarioModel> usuarios = new ArrayList<>();
 
     int contador = 1;
     @PostMapping("/usuario")
-    public String saudacao(@RequestBody Usuario usuario) {
+    public String saudacao(@RequestBody UsuarioModel usuario) {
         usuario.setId(contador);
         contador ++;
         usuarios.add(usuario);
@@ -31,33 +34,53 @@ public class UsuarioController {
 
 
 
-
-
     @GetMapping("/usuarios")
-    public List<Usuario> listarUsuarios() {
+    public List<UsuarioModel> listarUsuarios() {
         return usuarios;
     }
    
 
 
-
-
     @GetMapping("/usuario/{id}")
-    public Usuario id(@PathVariable long id ){
+    public UsuarioModel id(@PathVariable long id ){
 
-        for(Usuario u : usuarios){
+        for(UsuarioModel u : usuarios){
             if (u.getId() == id) {
                 return u;
             }
         }
         return null;
     }
+
+
+    @DeleteMapping("/usuario/{id}")
+    public String removerUsuariuID(@PathVariable long id){
+
+        boolean resultado = usuarios.removeIf(u -> u.getId() == id);
+
+        if (resultado){
+            return "Usuario removido com sucesso";
+        }else{
+            return "Usuario não encontrado";
+        }
+    }
+
+    @PutMapping("/usuario/{id}")
+    public String atualizarUsuarioId(@PathVariable long id, @RequestBody UsuarioModel usuario_atualizado) {
+        for (UsuarioModel u : usuarios){
+            if (u.getId() == id){
+                u.setNome(usuario_atualizado.getNome());
+                u.setIdade(usuario_atualizado.getIdade());
+                return "Usuario atualizado com sucesso!!";            
+        }
+            
+        }
+        return"Usuario não encontrado";
+     }
     
 
-    
-    
-    
 }
+ 
 
 /* 
 RestController é uma anotação do Spring que indica que a classe é um controlador Rest.
