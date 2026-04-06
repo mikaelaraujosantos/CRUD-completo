@@ -1,68 +1,76 @@
 package com.example.aula1.service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.aula1.model.UsuarioModel;
+import com.example.aula1.repository.UsuarioRepository;
 
 @Service
 public class UsuarioService {
-    private List<UsuarioModel> usuarios = new ArrayList<>();
-    private long contador = 1;
 
+    @Autowired
+    private UsuarioRepository repository;
 
-    
     public String criarUsuario(UsuarioModel usuario){
-        usuario.setId(contador);
-        contador++;
-        usuarios.add(usuario);
-        return "Usuario"+usuario.getNome()+"criado com sucesso";
+
+        repository.save(usuario);
+
+        return "Usuario criado com sucesso";
     }
 
+    public List<UsuarioModel> listarUsuarios(){
 
-    public List<UsuarioModel> listarUsuarios() {
-        return usuarios;
+        return repository.findAll();
     }
 
+    public UsuarioModel buscarPorid(long id){
 
-    public UsuarioModel buscarPorid(long id) {
-        
-        for(UsuarioModel u : usuarios){
-            if (u.getId() == id){
-                return u;
+        Optional<UsuarioModel> usuario = repository.findById(id);
 
-            }
-        }
-        return null ;
+        return usuario.orElse(null);
     }
-
 
     public String removerUsuario(long id){
-        boolean resultado = usuarios.removeIf(u -> u.getId() == id);
-        if (resultado){
+
+        if(repository.existsById(id)){
+            repository.deleteById(id);
             return "Usuario removido com sucesso";
-        }else{
-            return "Usuario nao encontrado";
         }
+
+        return "Usuario nao encontrado";
     }
 
-        public String atualizaUsuario(long id , UsuarioModel usuario_atualizado){
+    public String atualizaUsuario(long id , UsuarioModel usuario_atualizado){
 
-            for (UsuarioModel u : usuarios){
-                if (u.getId() == id){
-                    u.setNome(usuario_atualizado.getNome());
-                    u.setIdade(usuario_atualizado.getIdade());
-                    return "Usuario atualizado com sucesso!!";
-                }
-            }
-            return"Usuario nao encontrado";
+        Optional<UsuarioModel> usuario = repository.findById(id);
+
+        if(usuario.isPresent()){
+
+            UsuarioModel u = usuario.get();
+            //pega o usuario que está dentro do optional e coloca na variavel u
+
+            u.setNome(usuario_atualizado.getNome());
+            u.setIdade(usuario_atualizado.getIdade());
+
+            repository.save(u);
+
+            return "Usuario atualizado com sucesso";
         }
 
+        return "Usuario nao encontrado";
+    }
+
+
+
+    public List<UsuarioModel> buscarPorNome(String nome){
+        return repository.findByNome(nome);
+    }
 
 
 
 
-    
 }

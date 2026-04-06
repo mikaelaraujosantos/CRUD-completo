@@ -17,6 +17,8 @@ import com.example.aula1.model.UsuarioModel;
 import com.example.aula1.service.UsuarioService;
 
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -82,6 +84,20 @@ public ResponseEntity<String> atualizarUsuarioId(@PathVariable long id, @Request
         return ResponseEntity.status(404).body(resposta);
     }
 }
+
+
+ @GetMapping("/usuario/nome/{nome}")
+ public ResponseEntity<List<UsuarioModel>> buscarPorNome(@PathVariable String nome) {
+    List<UsuarioModel> usuarios = service.buscarPorNome(nome);
+
+    if (!usuarios.isEmpty()) {
+        //verifica se a lista não está vazia
+        return ResponseEntity.ok().body(usuarios);
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+ }
+ 
  
 
 /* 
