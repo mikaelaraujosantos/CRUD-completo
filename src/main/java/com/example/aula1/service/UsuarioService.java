@@ -11,16 +11,16 @@ import com.example.aula1.repository.UsuarioRepository;
 
 @Service
 public class UsuarioService {
-
+    
     @Autowired
     private UsuarioRepository repository;
 
+
     public String criarUsuario(UsuarioModel usuario){
-
         repository.save(usuario);
-
         return "Usuario criado com sucesso";
     }
+
 
     public List<UsuarioModel> listarUsuarios(){
 
@@ -71,6 +71,18 @@ public class UsuarioService {
     }
 
 
+    public List<UsuarioModel> buscarIdadeMenorQue(int idade){
+        return repository.findByIdadeLessThan(idade);
+    }
 
+
+    public List<UsuarioModel> buscarIdadeMaiorQue(int idade){
+        return repository.findByIdadeGreaterThan(idade);
+    }
+
+
+    public List<UsuarioModel> buscarNomeContem(String nome){
+        return repository.findByNomeContainingIgnoreCase(nome);
+    }
 
 }

@@ -19,6 +19,8 @@ import com.example.aula1.service.UsuarioService;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -99,8 +101,41 @@ public ResponseEntity<String> atualizarUsuarioId(@Valid @PathVariable long id, @
         return ResponseEntity.notFound().build();
     }
  }
+
+@GetMapping("/usuario/idade-menor/{idade}")
+public ResponseEntity<List<UsuarioModel>> buscarIdadeMenorQue(@PathVariable int idade) {
+    List<UsuarioModel> usuarios = service.buscarIdadeMenorQue(idade);
+
+    if (!usuarios.isEmpty()){
+        return ResponseEntity.ok().body(usuarios);
+    }else{
+        return ResponseEntity.notFound().build();
+
+    }
+ }
  
  
+@GetMapping("/usuario/idade-maior/{idade}")
+public ResponseEntity<List<UsuarioModel>> buscarIdadeMaiorQue(@PathVariable int idade) {
+    List<UsuarioModel> usuarios = service.buscarIdadeMaiorQue(idade);
+    if (!usuarios.isEmpty()){
+        return ResponseEntity.ok().body(usuarios);
+    }else{
+        return ResponseEntity.notFound().build();
+    }
+    
+}
+
+
+ @GetMapping("/usuario/nome-contem/{nome}")
+ public ResponseEntity<List<UsuarioModel>>buscarNomeContem(@PathVariable String nome){
+    List<UsuarioModel> usuarios = service.buscarNomeContem(nome);
+    if (!usuarios.isEmpty()){
+        return ResponseEntity.ok().body(usuarios);
+    }else{
+        return ResponseEntity.notFound().build();
+    }
+ }
 
 /* 
 RestController é uma anotação do Spring que indica que a classe é um controlador Rest.

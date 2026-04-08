@@ -16,7 +16,7 @@ import jakarta.validation.constraints.Size;
 //nomeia a tabela, caso não seja nomeado o padrao será o nome da classe
 public class UsuarioModel {
     //id
-    @Id
+    @Id 
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private Long id;
     //id
