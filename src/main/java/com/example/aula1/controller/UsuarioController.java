@@ -35,7 +35,7 @@ public class UsuarioController {
 
 
     @PostMapping("/usuario")
-    public ResponseEntity<String> saudacao(@Valid @RequestBody UsuarioModel usuario) {
+    public ResponseEntity<String> criarUsuario(@Valid @RequestBody UsuarioModel usuario) {
         return ResponseEntity.status(201).body(service.criarUsuario(usuario));
 
         // o valid faz a validação do objeto
@@ -43,6 +43,13 @@ public class UsuarioController {
         //depois chama a funcao criarUsuario do service passando o objeto da variavel como parametro
 
     }
+
+
+    @PostMapping("/usuarios")
+    public ResponseEntity<String> criarVariosUsuarios(@RequestBody List<UsuarioModel> usuarios) {
+        return ResponseEntity.status(201).body(service.criarVariosUsuarios(usuarios));
+    }
+    
 
 
     @GetMapping("/usuarios")

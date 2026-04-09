@@ -21,6 +21,11 @@ public class UsuarioService {
         return "Usuario criado com sucesso";
     }
 
+    public String criarVariosUsuarios(List<UsuarioModel> usuarios){
+        repository.saveAll(usuarios);
+        return "Usuarios criados com sucesso";
+    }
+
 
     public List<UsuarioModel> listarUsuarios(){
 
@@ -67,22 +72,22 @@ public class UsuarioService {
 
 
     public List<UsuarioModel> buscarPorNome(String nome){
-        return repository.findByNome(nome);
+        return repository.buscarPorNome(nome);
     }
 
 
     public List<UsuarioModel> buscarIdadeMenorQue(int idade){
-        return repository.findByIdadeLessThan(idade);
+        return repository.buscarIdadeMenorQue(idade);
     }
 
 
     public List<UsuarioModel> buscarIdadeMaiorQue(int idade){
-        return repository.findByIdadeGreaterThan(idade);
+        return repository.buscarIdadeMaiorQue(idade);
     }
 
 
     public List<UsuarioModel> buscarNomeContem(String nome){
-        return repository.findByNomeContainingIgnoreCase(nome);
+        return repository.buscarNomeContem(nome);
     }
 
 }
