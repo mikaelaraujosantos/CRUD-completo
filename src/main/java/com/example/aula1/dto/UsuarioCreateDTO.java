@@ -12,6 +12,9 @@ public class UsuarioCreateDTO {
     @Min(value = 1, message = "O campo idade precisa ser maior ou igual a 1")
     private int idade;
 
+    public UsuarioCreateDTO() {
+    }
+
 
     public String getNome() {
         return nome;

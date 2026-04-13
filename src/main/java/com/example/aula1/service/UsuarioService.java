@@ -98,9 +98,9 @@ public class UsuarioService {
         return repository.findAll() // busca todos os usuarios no banco
         .stream() // transforma em um stream para percorrer
         .map(usuario -> new UsuarioDTO( // para cada usuario, cria um usuarioDTO
+            usuario.getId(),
             usuario.getNome(),
-            usuario.getIdade(),
-            usuario.getId()  
+            usuario.getIdade()  
         ))
         .toList(); // retorna a lista
     }
@@ -115,9 +115,40 @@ public class UsuarioService {
 
         UsuarioModel usuarioSalvo = repository.save(usuario); // salva o usuario no banco e retorna o usuario salvo
         UsuarioDTO usuarioDTO = new UsuarioDTO(
-            usuarioSalvo.getNome(), usuarioSalvo.getIdade(), usuarioSalvo.getId());
+            usuarioSalvo.getId(), usuarioSalvo.getNome(), usuarioSalvo.getIdade());
         // cria um novo usuarioDTO com o nome e idade do usuario salvo
         return usuarioDTO;
       
     }
+
+
+
+    public UsuarioDTO atualizarPorIdDTO(Long id, UsuarioCreateDTO dto){
+
+        Optional<UsuarioModel> usuario = repository.findById(id);
+
+        if (usuario.isPresent()) {
+
+            UsuarioModel u = usuario.get();
+
+            u.setNome(dto.getNome());
+            u.setIdade(dto.getIdade());
+
+            UsuarioModel usuarioAtualizado =
+                repository.save(u);
+
+            UsuarioDTO usuarioDTO = new UsuarioDTO(
+                usuarioAtualizado.getId(),
+                usuarioAtualizado.getNome(),
+                usuarioAtualizado.getIdade()
+        );
+
+        return usuarioDTO;
+
+    } else {
+
+        return null;
+
+    }
+}
 }

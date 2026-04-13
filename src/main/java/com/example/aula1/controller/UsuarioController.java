@@ -164,6 +164,14 @@ public ResponseEntity<List<UsuarioModel>> buscarIdadeMaiorQue(@PathVariable int 
      return ResponseEntity.ok().body(entity);
  }
 
+
+ @PutMapping("/usuario/dto/{id}")
+ public ResponseEntity<UsuarioDTO> atualizarPorIdDTO( @PathVariable Long id, @Valid @RequestBody UsuarioCreateDTO dto) {
+     
+     return ResponseEntity.ok()
+        .body(service.atualizarPorIdDTO(id, dto));
+ }
+
 /* 
 RestController é uma anotação do Spring que indica que a classe é um controlador Rest.
 GetMapping é um mapeador de requisições HTTP GET para o método hello.

@@ -11,12 +11,13 @@ public class UsuarioDTO {
     }
 
 
-    public UsuarioDTO(String nome, int idade, Long id) {
+    public UsuarioDTO(Long id, String nome, int idade) {
         this.nome = nome;
         this.idade = idade;
         this.id = id;
     }
 
+    
 
     public String getNome() {
         return nome;
