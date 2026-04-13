@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.aula1.dto.UsuarioCreateDTO;
+import com.example.aula1.dto.UsuarioDTO;
 import com.example.aula1.model.UsuarioModel;
 import com.example.aula1.repository.UsuarioRepository;
 
@@ -90,4 +92,32 @@ public class UsuarioService {
         return repository.buscarNomeContem(nome);
     }
 
+
+
+    public List<UsuarioDTO> listarUsuariosDTO(){
+        return repository.findAll() // busca todos os usuarios no banco
+        .stream() // transforma em um stream para percorrer
+        .map(usuario -> new UsuarioDTO( // para cada usuario, cria um usuarioDTO
+            usuario.getNome(),
+            usuario.getIdade(),
+            usuario.getId()  
+        ))
+        .toList(); // retorna a lista
+    }
+
+
+    public UsuarioDTO criarUsuarioDTO(UsuarioCreateDTO dto){
+
+        UsuarioModel usuario = new UsuarioModel(); // cria um novo usuario vazio
+
+        usuario.setNome(dto.getNome());
+        usuario.setIdade(dto.getIdade());
+
+        UsuarioModel usuarioSalvo = repository.save(usuario); // salva o usuario no banco e retorna o usuario salvo
+        UsuarioDTO usuarioDTO = new UsuarioDTO(
+            usuarioSalvo.getNome(), usuarioSalvo.getIdade(), usuarioSalvo.getId());
+        // cria um novo usuarioDTO com o nome e idade do usuario salvo
+        return usuarioDTO;
+      
+    }
 }

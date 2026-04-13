@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.aula1.dto.PedidoDTO;
 import com.example.aula1.model.PedidoModel;
 import com.example.aula1.model.UsuarioModel;
 import com.example.aula1.repository.PedidoRepository;
@@ -42,5 +43,16 @@ public class PedidoService {
         return repository.findByUsuarioId(usuarioId);
     }
 
+
+
+    public List<PedidoDTO> listarPedidosDTO(){
+        return repository.findAll() // busca todos os pedidos no banco
+        .stream() // transforma em um stream para percorrer
+        .map(pedido -> new PedidoDTO(   // para cada pedido, cria um pedidoDTO
+            pedido.getDescricao(),  
+            pedido.getValor(),
+            pedido.getUsuario().getNome()))
+            .toList();  // retorna a lista
+    }
 
 }

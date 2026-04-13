@@ -43,7 +43,8 @@ public class UsuarioModel {
     //pedidos
     @JsonIgnore
     @OneToMany(mappedBy = "usuario",
-    cascade = CascadeType.ALL)//para deletar os pedidos ao deletar o usuario
+    cascade = CascadeType.ALL,   //para deletar os pedidos ao deletar o usuario
+    orphanRemoval = true) // caso um pedido saia da lista de um usuario, ele será apagado do banco
     private List<PedidoModel> pedidos;
     //pedidos
 

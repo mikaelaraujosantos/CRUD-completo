@@ -13,12 +13,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.aula1.dto.UsuarioCreateDTO;
+import com.example.aula1.dto.UsuarioDTO;
 import com.example.aula1.model.UsuarioModel;
 import com.example.aula1.service.UsuarioService;
 
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -141,6 +145,23 @@ public ResponseEntity<List<UsuarioModel>> buscarIdadeMaiorQue(@PathVariable int 
     }else{
         return ResponseEntity.notFound().build();
     }
+ }
+
+
+ @GetMapping("/usuarios/dto")
+ public ResponseEntity<List<UsuarioDTO>> listarUsuariosDTO() {
+     List<UsuarioDTO> usuarios = service.listarUsuariosDTO();
+     return ResponseEntity.ok().body(usuarios);
+ }
+ 
+
+
+ @PostMapping("/usuario/dto")
+ public ResponseEntity<UsuarioDTO> criarUsuarioDTO(@Valid@RequestBody UsuarioCreateDTO dto) {
+     
+     UsuarioDTO entity = service.criarUsuarioDTO(dto);
+     
+     return ResponseEntity.ok().body(entity);
  }
 
 /* 

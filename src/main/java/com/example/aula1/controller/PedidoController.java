@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.aula1.dto.PedidoDTO;
 import com.example.aula1.model.PedidoModel;
 import com.example.aula1.service.PedidoService;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -50,6 +52,13 @@ public class PedidoController {
             return ResponseEntity.ok().body(pedidos);
         }
     }
+
+    @GetMapping("/pedidos/dto")
+    public ResponseEntity<List<PedidoDTO>> listarPedidosDTO() {
+        List<PedidoDTO> pedidos = service.listarPedidosDTO();
+        return ResponseEntity.ok().body(pedidos);
+    }
+    
     
 
 
