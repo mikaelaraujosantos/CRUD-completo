@@ -1,183 +1,163 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CRUD Completo</title>
 
-<head>
-<meta charset="UTF-8">
-<title>CRUD Completo</title>
+    <style>
+      body {
+        font-family: Arial;
+        margin: 0;
+        background: #f4f6f8;
+      }
 
-<style>
+      .container {
+        width: 850px;
+        margin: auto;
+        margin-top: 40px;
+      }
 
-body {
-    font-family: Arial;
-    margin: 0;
-    background: #f4f6f8;
-}
+      h1 {
+        text-align: center;
+      }
 
-.container {
-    width: 850px;
-    margin: auto;
-    margin-top: 40px;
-}
+      .card {
+        background: white;
+        padding: 20px;
+        margin-top: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+      }
 
-h1 {
-    text-align: center;
-}
+      input {
+        padding: 10px;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
 
-.card {
-    background: white;
-    padding: 20px;
-    margin-top: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
-}
+      button {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #2d89ef;
+        color: white;
+      }
 
-input {
-    padding: 10px;
-    margin-right: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
+      button:hover {
+        background: #1b5fbf;
+      }
 
-button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background: #2d89ef;
-    color: white;
-}
+      .btn-del {
+        background: #e74c3c;
+      }
 
-button:hover {
-    background: #1b5fbf;
-}
+      .btn-del:hover {
+        background: #c0392b;
+      }
 
-.btn-del {
-    background: #e74c3c;
-}
+      .btn-edit {
+        background: #f39c12;
+      }
 
-.btn-del:hover {
-    background: #c0392b;
-}
+      .btn-edit:hover {
+        background: #d68910;
+      }
 
-.btn-edit {
-    background: #f39c12;
-}
+      .user {
+        display: flex;
+        justify-content: space-between;
+        background: #eef2f7;
+        padding: 10px;
+        margin-top: 8px;
+        border-radius: 6px;
+      }
 
-.btn-edit:hover {
-    background: #d68910;
-}
+      .paginacao {
+        text-align: center;
+        margin-top: 10px;
+      }
 
-.user {
-    display: flex;
-    justify-content: space-between;
-    background: #eef2f7;
-    padding: 10px;
-    margin-top: 8px;
-    border-radius: 6px;
-}
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+      }
 
-.paginacao {
-    text-align: center;
-    margin-top: 10px;
-}
+      .modal-content {
+        background: white;
+        width: 400px;
+        margin: 150px auto;
+        padding: 20px;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
 
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-}
+  <body>
+    <div class="container">
+      <h1>CRUD COMPLETO</h1>
 
-.modal-content {
-    background: white;
-    width: 400px;
-    margin: 150px auto;
-    padding: 20px;
-    border-radius: 10px;
-}
+      <!-- CREATE -->
+      <div class="card">
+        <h2>Criar Usuário</h2>
 
-</style>
+        <input type="text" id="nome" placeholder="Nome" />
+        <input type="number" id="idade" placeholder="Idade" />
 
-</head>
+        <button onclick="criar()">Criar</button>
+      </div>
 
-<body>
+      <!-- LIST -->
+      <div class="card">
+        <h2>Usuários</h2>
 
-<div class="container">
+        <div id="lista"></div>
 
-<h1>CRUD COMPLETO</h1>
+        <div class="paginacao">
+          <button onclick="voltar()">⬅</button>
+          <span id="pagina">1</span>
+          <button onclick="avancar()">➡</button>
+        </div>
+      </div>
+    </div>
 
-<!-- CREATE -->
-<div class="card">
+    <!-- MODAL -->
+    <div class="modal" id="modal">
+      <div class="modal-content">
+        <h3>Editar Usuário</h3>
 
-<h2>Criar Usuário</h2>
+        <input type="text" id="editNome" />
+        <input type="number" id="editIdade" />
 
-<input type="text" id="nome" placeholder="Nome">
-<input type="number" id="idade" placeholder="Idade">
+        <br /><br />
 
-<button onclick="criar()">Criar</button>
+        <button onclick="salvar()">Salvar</button>
+        <button onclick="fechar()">Cancelar</button>
+      </div>
+    </div>
 
-</div>
+    <script>
+      const API = window.location.origin;
 
-<!-- LIST -->
-<div class="card">
+      let pagina = 0;
+      let idEdit = null;
 
-<h2>Usuários</h2>
+      /* LISTAR */
+      function listar() {
+        fetch(`${API}/usuario/dto?page=${pagina}&size=5`)
+          .then((r) => r.json())
 
-<div id="lista"></div>
+          .then((data) => {
+            let lista = document.getElementById("lista");
+            lista.innerHTML = "";
 
-<div class="paginacao">
-<button onclick="voltar()">⬅</button>
-<span id="pagina">1</span>
-<button onclick="avancar()">➡</button>
-</div>
-
-</div>
-
-</div>
-
-<!-- MODAL -->
-<div class="modal" id="modal">
-
-<div class="modal-content">
-
-<h3>Editar Usuário</h3>
-
-<input type="text" id="editNome">
-<input type="number" id="editIdade">
-
-<br><br>
-
-<button onclick="salvar()">Salvar</button>
-<button onclick="fechar()">Cancelar</button>
-
-</div>
-
-</div>
-
-<script>
-
-const API = "https://crud-completo.onrender.com";
-
-let pagina = 0;
-let idEdit = null;
-
-/* LISTAR */
-function listar() {
-
-fetch(`${API}/usuario/dto?page=${pagina}&size=5`)
-
-.then(r => r.json())
-
-.then(data => {
-
-let lista = document.getElementById("lista");
-lista.innerHTML = "";
-
-data.data.content.forEach(u => {
-
-lista.innerHTML += `
+            data.data.content.forEach((u) => {
+              lista.innerHTML += `
 <div class="user">
 <div>
 <b>${u.nome}</b> - ${u.idade} anos
@@ -189,93 +169,76 @@ lista.innerHTML += `
 </div>
 </div>
 `;
+            });
 
-});
+            document.getElementById("pagina").innerText = pagina + 1;
+          });
+      }
 
-document.getElementById("pagina").innerText = pagina + 1;
+      /* CRIAR */
+      function criar() {
+        fetch(`${API}/usuario/dto`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome: document.getElementById("nome").value,
+            idade: document.getElementById("idade").value,
+          }),
+        }).then(() => {
+          alert("Criado!");
+          listar();
+        });
+      }
 
-});
+      /* DELETAR */
+      function deletar(id) {
+        fetch(`${API}/usuario/${id}`, {
+          method: "DELETE",
+        }).then(() => listar());
+      }
 
-}
+      /* EDITAR */
+      function abrir(id, nome, idade) {
+        idEdit = id;
 
-/* CRIAR */
-function criar() {
+        document.getElementById("editNome").value = nome;
+        document.getElementById("editIdade").value = idade;
 
-fetch(`${API}/usuario/dto`, {
-method: "POST",
-headers: {"Content-Type":"application/json"},
-body: JSON.stringify({
-nome: document.getElementById("nome").value,
-idade: document.getElementById("idade").value
-})
-})
+        document.getElementById("modal").style.display = "block";
+      }
 
-.then(() => {
-alert("Criado!");
-listar();
-});
+      function fechar() {
+        document.getElementById("modal").style.display = "none";
+      }
 
-}
+      function salvar() {
+        fetch(`${API}/usuario/dto/${idEdit}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome: document.getElementById("editNome").value,
+            idade: document.getElementById("editIdade").value,
+          }),
+        }).then(() => {
+          fechar();
+          listar();
+        });
+      }
 
-/* DELETAR */
-function deletar(id) {
+      /* PAGINAÇÃO */
+      function avancar() {
+        pagina++;
+        listar();
+      }
 
-fetch(`${API}/usuario/${id}`, {
-method: "DELETE"
-})
-.then(() => listar());
+      function voltar() {
+        if (pagina > 0) {
+          pagina--;
+          listar();
+        }
+      }
 
-}
-
-/* EDITAR */
-function abrir(id, nome, idade) {
-
-idEdit = id;
-
-document.getElementById("editNome").value = nome;
-document.getElementById("editIdade").value = idade;
-
-document.getElementById("modal").style.display = "block";
-
-}
-
-function fechar() {
-document.getElementById("modal").style.display = "none";
-}
-
-function salvar() {
-
-fetch(`${API}/usuario/dto/${idEdit}`, {
-method: "PUT",
-headers: {"Content-Type":"application/json"},
-body: JSON.stringify({
-nome: document.getElementById("editNome").value,
-idade: document.getElementById("editIdade").value
-})
-})
-.then(() => {
-fechar();
-listar();
-});
-
-}
-
-/* PAGINAÇÃO */
-function avancar() {
-pagina++;
-listar();
-}
-
-function voltar() {
-if (pagina > 0) {
-pagina--;
-listar();
-}
-}
-
-listar();
-
-</script>
-
-</body>
+      listar();
+    </script>
+  </body>
 </html>
