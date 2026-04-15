@@ -49,7 +49,9 @@ public class UsuarioModel {
     //pedidos
 
 
-
+    public List<PedidoModel> getPedidos() {
+    return pedidos;
+}
 
 
 

@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sistema de Usuários</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f8;
+        margin: 0;
+      }
+
+      .container {
+        width: 850px;
+        margin: auto;
+        margin-top: 40px;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      .card {
+        background: white;
+        padding: 20px;
+        margin-top: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      input {
+        padding: 10px;
+        margin-right: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      }
+
+      button {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 6px;
+        background-color: #2d89ef;
+        color: white;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #1b5fbf;
+      }
+
+      .btn-delete {
+        background-color: #e74c3c;
+      }
+
+      .btn-delete:hover {
+        background-color: #c0392b;
+      }
+
+      .btn-edit {
+        background-color: #f39c12;
+      }
+
+      .btn-edit:hover {
+        background-color: #d68910;
+      }
+
+      .usuario-item {
+        background: #eef2f7;
+        padding: 12px;
+        margin-top: 8px;
+        border-radius: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .paginacao {
+        margin-top: 15px;
+        text-align: center;
+      }
+
+      /* Modal */
+
+      .modal {
+        display: none;
+        position: fixed;
+        background: rgba(0, 0, 0, 0.5);
+        width: 100%;
+        height: 100%;
+        top: 0;
+      }
+
+      .modal-content {
+        background: white;
+        width: 400px;
+        margin: 150px auto;
+        padding: 20px;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>📋 Sistema de Usuários</h1>
+
+      <!-- Criar usuário -->
+
+      <div class="card">
+        <h2>Criar Usuário</h2>
+
+        <input type="text" id="nome" placeholder="Nome" />
+
+        <input type="number" id="idade" placeholder="Idade" />
+
+        <button onclick="criarUsuario()">Criar Usuário</button>
+      </div>
+
+      <!-- Lista -->
+
+      <div class="card">
+        <h2>Lista de Usuários</h2>
+
+        <div id="listaUsuarios"></div>
+
+        <div class="paginacao">
+          <button onclick="paginaAnterior()">⬅ Anterior</button>
+
+          <span id="numeroPagina"> Página 1 </span>
+
+          <button onclick="proximaPagina()">Próxima ➡</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal editar -->
+
+    <div class="modal" id="modalEditar">
+      <div class="modal-content">
+        <h3>Editar Usuário</h3>
+
+        <input type="text" id="editNome" placeholder="Nome" />
+
+        <input type="number" id="editIdade" placeholder="Idade" />
+
+        <br /><br />
+
+        <button onclick="salvarEdicao()">Salvar</button>
+
+        <button onclick="fecharModal()">Cancelar</button>
+      </div>
+    </div>
+
+    <script>
+      let pagina = 0;
+      let tamanho = 5;
+      let usuarioEditando = null;
+
+      /* LISTAR */
+
+      function listarUsuarios() {
+        fetch(
+          `http://localhost:8080/usuario/dto?page=${pagina}&size=${tamanho}`,
+        )
+          .then((response) => response.json())
+
+          .then((data) => {
+            let lista = document.getElementById("listaUsuarios");
+
+            lista.innerHTML = "";
+
+            data.data.content.forEach((usuario) => {
+              let div = document.createElement("div");
+
+              div.className = "usuario-item";
+
+              div.innerHTML = `
+<div>
+<b>${usuario.nome}</b>
+ - ${usuario.idade} anos
+</div>
+
+<div>
+<button
+class="btn-edit"
+onclick="abrirEdicao(${usuario.id}, '${usuario.nome}', ${usuario.idade})">
+Editar
+</button>
+
+<button
+class="btn-delete"
+onclick="deletarUsuario(${usuario.id})">
+Excluir
+</button>
+</div>
+`;
+
+              lista.appendChild(div);
+            });
+
+            document.getElementById("numeroPagina").innerText =
+              "Página " + (pagina + 1);
+          });
+      }
+
+      /* CRIAR */
+
+      function criarUsuario() {
+        let nome = document.getElementById("nome").value;
+
+        let idade = document.getElementById("idade").value;
+
+        fetch("http://localhost:8080/usuario/dto", {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            nome: nome,
+            idade: idade,
+          }),
+        })
+          .then((response) => response.json())
+
+          .then(() => {
+            alert("Usuário criado!");
+
+            document.getElementById("nome").value = "";
+            document.getElementById("idade").value = "";
+
+            listarUsuarios();
+          });
+      }
+
+      /* DELETAR */
+
+      function deletarUsuario(id) {
+        if (!confirm("Deseja excluir este usuário?")) {
+          return;
+        }
+
+        fetch(`http://localhost:8080/usuario/${id}`, {
+          method: "DELETE",
+        }).then(() => {
+          alert("Usuário excluído!");
+
+          listarUsuarios();
+        });
+      }
+
+      /* EDITAR */
+
+      function abrirEdicao(id, nome, idade) {
+        usuarioEditando = id;
+
+        document.getElementById("editNome").value = nome;
+        document.getElementById("editIdade").value = idade;
+
+        document.getElementById("modalEditar").style.display = "block";
+      }
+
+      function fecharModal() {
+        document.getElementById("modalEditar").style.display = "none";
+      }
+
+      function salvarEdicao() {
+        let nome = document.getElementById("editNome").value;
+
+        let idade = document.getElementById("editIdade").value;
+
+        fetch(`http://localhost:8080/usuario/dto/${usuarioEditando}`, {
+          method: "PUT",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            nome: nome,
+            idade: idade,
+          }),
+        })
+          .then((response) => response.json())
+
+          .then(() => {
+            alert("Usuário atualizado!");
+
+            fecharModal();
+
+            listarUsuarios();
+          });
+      }
+
+      /* PAGINAÇÃO */
+
+      function proximaPagina() {
+        pagina++;
+
+        listarUsuarios();
+      }
+
+      function paginaAnterior() {
+        if (pagina > 0) {
+          pagina--;
+
+          listarUsuarios();
+        }
+      }
+
+      /* CARREGAR AO INICIAR */
+
+      listarUsuarios();
+    </script>
+  </body>
+</html>

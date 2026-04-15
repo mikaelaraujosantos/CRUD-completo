@@ -1,7 +1,7 @@
 package com.example.aula1.service;
 
 import java.util.List;
-import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,108 +14,160 @@ import com.example.aula1.repository.UsuarioRepository;
 
 @Service
 public class PedidoService {
-    
+
     @Autowired
     private PedidoRepository repository;
 
     @Autowired
     private UsuarioRepository usuRepository;
 
+    // 🔥 POST - Criar pedido
+    public PedidoDTO criarPedidoDTO(
+            Long usuarioId,
+            PedidoCreateDTO dto){
 
-    public String criarPedido(Long usuarioId, PedidoModel pedido) {
-        
-         Optional<UsuarioModel> usuario = usuRepository.findById(usuarioId);
+        UsuarioModel usuario =
+                usuRepository.findById(usuarioId)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Usuario nao encontrado"
+                        )
+                );
 
-            if (usuario.isPresent()) {
-                 pedido.setUsuario(usuario.get());
-                 repository.save(pedido);
-                 return "Pedido criado com sucesso";
-            } else {
-                    return "Usuario nao encontrado";
-        }
+        PedidoModel pedido =
+                new PedidoModel();
+
+        pedido.setDescricao(dto.getDescricao());
+        pedido.setValor(dto.getValor());
+        pedido.setUsuario(usuario);
+
+        PedidoModel pedidoSalvo =
+                repository.save(pedido);
+
+        return new PedidoDTO(
+                pedidoSalvo.getId(),
+                pedidoSalvo.getDescricao(),
+                pedidoSalvo.getValor(),
+                pedidoSalvo
+                        .getUsuario()
+                        .getNome()
+        );
     }
 
-    public List<PedidoModel> listarPedidos() {
-        return repository.findAll();
-    }
-
-
-    public List<PedidoModel> listarPedidosPorUsuario(Long usuarioId) {
-        return repository.findByUsuarioId(usuarioId);
-    }
-
-
-
+    // 🔥 GET - Listar pedidos
     public List<PedidoDTO> listarPedidosDTO(){
-        return repository.findAll() // busca todos os pedidos no banco
-        .stream() // transforma em um stream para percorrer
-        .map(pedido -> new PedidoDTO(   // para cada pedido, cria um pedidoDTO
-            pedido.getDescricao(),  
-            pedido.getValor(),
-            pedido.getUsuario().getNome()))
-            .toList();  // retorna a lista
+
+        return repository.findAll()
+                .stream()
+                .map(pedido -> new PedidoDTO(
+                        pedido.getId(),
+                        pedido.getDescricao(),
+                        pedido.getValor(),
+                        pedido.getUsuario().getNome()
+                ))
+                .toList();
     }
 
+    // 🔥 GET - Buscar pedidos por usuário
+    public List<PedidoDTO>
+            listarPedidosPorUsuario(
+            Long usuarioId){
 
-    public PedidoDTO criarPedidoDTO( Long usuarioid,PedidoCreateDTO dto) {
-        
-        Optional<UsuarioModel> usuario = usuRepository.findById(usuarioid);
-        if (usuario.isPresent()) {
+        return repository
+                .findByUsuarioId(usuarioId)
+                .stream()
+                .map(pedido -> new PedidoDTO(
+                        pedido.getId(),
+                        pedido.getDescricao(),
+                        pedido.getValor(),
+                        pedido.getUsuario().getNome()
+                ))
+                .toList();
+    }
 
-            PedidoModel pedido = new PedidoModel();
-            pedido.setDescricao(dto.getDescricao());
-            pedido.setValor(dto.getValor());
-            pedido.setUsuario(usuario.get());
-            PedidoModel pedidoSalvo = repository.save(pedido);
-            PedidoDTO pedidoDTO = new PedidoDTO(pedidoSalvo.getId(), pedidoSalvo.getDescricao(), pedidoSalvo.getValor(), pedidoSalvo.getUsuario().getNome());
-            return pedidoDTO;
-        } else {
-            throw new RuntimeException("Usuario nao encontrado");
+    // 🔥 PUT - Atualizar completo
+    public PedidoDTO atualizarPedidoDTO(
+            Long id,
+            PedidoCreateDTO dto){
+
+        PedidoModel pedido =
+                repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Pedido nao encontrado"
+                        )
+                );
+
+        pedido.setDescricao(dto.getDescricao());
+        pedido.setValor(dto.getValor());
+
+        PedidoModel pedidoAtualizado =
+                repository.save(pedido);
+
+        return new PedidoDTO(
+                pedidoAtualizado.getId(),
+                pedidoAtualizado.getDescricao(),
+                pedidoAtualizado.getValor(),
+                pedidoAtualizado
+                        .getUsuario()
+                        .getNome()
+        );
+    }
+
+    // 🔥 PATCH - Atualização parcial
+    public PedidoDTO atualizarParcialPedido(
+            Long id,
+            PedidoCreateDTO dto){
+
+        PedidoModel pedido =
+                repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Pedido nao encontrado"
+                        )
+                );
+
+        if (dto.getDescricao() != null
+                && !dto.getDescricao().isBlank()) {
+
+            pedido.setDescricao(
+                    dto.getDescricao()
+            );
         }
-        
-    }
 
+        if (dto.getValor() != null
+                && dto.getValor() > 0) {
 
-    public PedidoDTO atualizarPedidoDTO(Long id, PedidoCreateDTO dto){
-
-        Optional<PedidoModel> pedido = repository.findById(id);
-
-        if (pedido.isPresent()) {
-            PedidoModel pedidoAtualizado = pedido.get();
-            if (dto.getDescricao() != null) {
-                    pedidoAtualizado.setDescricao(dto.getDescricao());
-            }
-            if (dto.getValor() != null) {
-                pedidoAtualizado.setValor(dto.getValor());
-            }
-            
-
-            repository.save(pedidoAtualizado);
-
-            PedidoDTO pedidoDTO = new PedidoDTO(pedidoAtualizado.getId(), pedidoAtualizado.getDescricao(), pedidoAtualizado.getValor(), pedidoAtualizado.getUsuario().getNome());
-            return pedidoDTO;
-        } else {
-            throw new RuntimeException("Pedido nao encontrado");
+            pedido.setValor(
+                    dto.getValor()
+            );
         }
 
+        PedidoModel pedidoAtualizado =
+                repository.save(pedido);
 
+        return new PedidoDTO(
+                pedidoAtualizado.getId(),
+                pedidoAtualizado.getDescricao(),
+                pedidoAtualizado.getValor(),
+                pedidoAtualizado
+                        .getUsuario()
+                        .getNome()
+        );
     }
 
+    // 🔥 DELETE
+    public void removerPedido(Long id){
 
-    public void removerPedido(Long id) {
-        Optional<PedidoModel> pedido = repository.findById(id);
+        PedidoModel pedido =
+                repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Pedido nao encontrado"
+                        )
+                );
 
-        if (pedido.isPresent()) {
-
-            repository.delete(pedido.get());
-            
-
-        } else {
-            throw new RuntimeException("Pedido nao encontrado");
-        }
-    
+        repository.delete(pedido);
     }
-
-    
 
 }

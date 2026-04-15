@@ -2,6 +2,8 @@ package com.example.aula1.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,8 +43,8 @@ public interface UsuarioRepository
     //busca por parte do nome
     //ignore case ignora maiuscula e minuscula
 
-    @Query("SELECT u FROM UsuarioModel u WHERE u.nome LIKE %:nome%")
-    List <UsuarioModel> buscarNomeContem(@Param("nome") String nome);
+    @Query("SELECT u FROM UsuarioModel u WHERE LOWER(u.nome) LIKE LOWER(CONCAT('%', :nome, '%'))")
+     Page<UsuarioModel> buscarNomeContem(@Param("nome") String nome, Pageable pageable);
 }
 
 
